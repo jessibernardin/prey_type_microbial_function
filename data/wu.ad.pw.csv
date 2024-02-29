@@ -1,0 +1,4 @@
+"","parent_call","ant_vs_beetle.Df","ant_vs_beetle.SumOfSqs","ant_vs_beetle.R2","ant_vs_beetle.F","ant_vs_beetle.Pr..F.","ant_vs_fly.Df","ant_vs_fly.SumOfSqs","ant_vs_fly.R2","ant_vs_fly.F","ant_vs_fly.Pr..F.","beetle_vs_fly.Df","beetle_vs_fly.SumOfSqs","beetle_vs_fly.R2","beetle_vs_fly.F","beetle_vs_fly.Pr..F."
+"treatment","wu.dist.16s ~ treatment , strata = day , permutations 999",1,0.15449357640502,0.0364158717043846,1.05817891534423,0.156,1,0.225955573126723,0.0541641432563253,1.43164754407815,0.043,1,0.180909447552577,0.0408219519417142,1.06398264702659,0.158
+"Residual","wu.dist.16s ~ treatment , strata = day , permutations 999",28,4.08798557277372,0.963584128295615,NA,NA,25,3.94572627287637,0.945835856743675,NA,NA,25,4.2507612332341,0.959178048058286,NA,NA
+"Total","wu.dist.16s ~ treatment , strata = day , permutations 999",29,4.24247914917874,1,NA,NA,26,4.17168184600309,1,NA,NA,26,4.43167068078667,1,NA,NA
