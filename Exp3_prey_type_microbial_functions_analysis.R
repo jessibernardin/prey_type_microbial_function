@@ -431,16 +431,25 @@ decom_delta2$treatment <- relevel(decom_delta2$treatment, ref = "fly")
 
 #chitinase across time
 data_filt2$chitinase_uM_min <- ifelse(data_filt2$chitinase_uM_min <= 0, 0.0001, data_filt2$chitinase_uM_min)
-#m1a <- brm(chitinase_uM_min ~ treatment+day,data=data_filt2, family=Gamma(link="log"), iter = 10000, chains = 4, cores = 4, control = list(adapt_delta = 0.999, max_treedepth = 20))
+m1a <- brm(chitinase_uM_min ~ treatment+day+(1|plant_block),data=data_filt2, family=Gamma(link="log"), iter = 10000, chains = 4, cores = 4, control = list(adapt_delta = 0.999, max_treedepth = 20))
+
+
 #saveRDS(m1a, "RDS_files/Exp4_chitinase_glm.RDS")
 m1a <- readRDS("RDS_files/Exp4_chitinase_glm.RDS")
 summary(m1a)
 pp_check(m1a)
 
 posterior_m1a <- as.data.frame(m1a)
-posterior_m1a_melt <- posterior_m1a[,1:4]
+posterior_m1a_melt <- posterior_m1a[,1:3]
 posterior_m1a_melt <- reshape2::melt(posterior_m1a_melt)
-
+ggplot(posterior_m1a_melt, aes(x = value,y=variable, fill = factor(variable))) +
+  stat_halfeye(slab_alpha=0.50, .width=c(.95, 0.95)) +
+  geom_vline(aes(xintercept=0), 
+             color="black", size=1, linetype="dashed")+
+  ylab("Probability density") +
+  theme_classic() + guides(fill="none")+ scale_fill_manual(values=c( "#5d004f","#c24000","#008388"))+
+  theme(text = element_text(color = "black", size = 16 ))+
+  xlab("Predicted Effect on Chitinase Acitivity")
 ##Fig3
 level_order <- c("b_treatmentfly","b_treatmentbeetle","b_treatmentant","b_Intercept") 
 
@@ -477,22 +486,31 @@ ggplot() +
   geom_ribbon(data = pm1a, aes(x = day, ymin = conf.low, ymax = conf.high, fill = treatment), alpha = 0.1) + # Shaded area for confidence interval
   scale_color_manual(values = c("#c24000", "#008388","#5d004f")) +
   scale_fill_manual(values = c("#c24000", "#008388","#5d004f"))+theme_classic()+
- theme(legend.position ="none")+ xlim(c(7,52))
+ theme(legend.position ="none")+ xlim(c(7,52))+theme(text = element_text(color = "black", size = 16 ))+
+  xlab("Day")+ ylab("Chitinase Activity")
 
 ##protease
 data_filt2$protease_nM_min <- ifelse(data_filt2$protease_nM_min <= 0, 0.0001, data_filt2$protease_nM_min)
 
-#m2a <- brm(protease_nM_min ~ treatment+day,data=data_filt2, family=Gamma(link="log"), iter = 10000, chains = 4, cores = 4,
-#          control = list(adapt_delta = 0.999, max_treedepth = 20))
+m2b <- brm(protease_nM_min ~ treatment+day+(1|plant_block),data=data_filt2, family=Gamma(link="log"), iter = 10000, chains = 4, cores = 4,
+         control = list(adapt_delta = 0.999, max_treedepth = 20))
 #saveRDS(m2a, "RDS_files/Exp4_protease_glm.RDS")
-
+m2a <- readRDS("RDS_files/Exp4_protease_glm.RDS")
 summary(m2a)
+summary(m2b)
 pp_check(m2a)
 
 posterior_m2a <- as.data.frame(m2a)
-posterior_m2a_melt <- posterior_m2a[,1:4]
+posterior_m2a_melt <- posterior_m2a[,1:3]
 posterior_m2a_melt <- reshape2::melt(posterior_m2a_melt)
-
+ggplot(posterior_m2a_melt, aes(x = value,y=variable, fill = factor(variable))) +
+  stat_halfeye(slab_alpha=0.50, .width=c(.95, 0.95)) +
+  geom_vline(aes(xintercept=0), 
+             color="black", size=1, linetype="dashed")+
+  ylab("Probability density") +
+  theme_classic() + guides(fill="none")+ scale_fill_manual(values=c( "#5d004f","#c24000","#008388"))+
+  theme(text = element_text(color = "black", size = 16 ))+
+  xlab("Predicted Effect on Protease Acitivity")
 ##Fig3
 posterior_m2a_melt_intc <- filter(posterior_m2a_melt, variable =="b_Intercept")
 posterior_m2a_melt_other <- filter(posterior_m2a_melt, variable %in% c("b_treatmentant", "b_treatmentbeetle"))
@@ -524,10 +542,11 @@ ggplot() +
   geom_ribbon(data = pm2a, aes(x = day, ymin = conf.low, ymax = conf.high, fill = treatment), alpha = 0.1) + # Shaded area for confidence interval
   scale_color_manual(values = c("#c24000", "#008388","#5d004f")) +
   scale_fill_manual(values = c("#c24000", "#008388","#5d004f"))+theme_classic()+
-  theme(legend.position ="none") + xlim(c(7,52))
+  theme(legend.position ="none") + xlim(c(7,52))+theme(text = element_text(color = "black", size = 16 ))+
+  xlab("Day")+ ylab("Protease Activity")
 
 
-#m3a <- brm(flow_cyt_livingevents_uL ~ treatment+day,data=data_filt2, family=Gamma(link="log"), iter = 10000, chains = 4, cores = 4,
+#m3a <- brm(flow_cyt_livingevents_uL ~ treatment+day+(1|plant_block),data=data_filt2, family=Gamma(link="log"), iter = 10000, chains = 4, cores = 4,
 #          control = list(adapt_delta = 0.999, max_treedepth = 20))
 #saveRDS(m3a, "RDS_files/Exp4_cyto_glm.RDS")
 
@@ -572,14 +591,24 @@ ggplot() +
 
 
 ##ph
-#m4a <- brm(pH ~ treatment+day, data=data_filt2, family=Gamma(link="log"), iter = 10000, chains = 4, cores = 4)
+#m4a <- brm(pH ~ treatment+day+(1|plant_block), data=data_filt2, family=Gamma(link="log"), iter = 10000, chains = 4, cores = 4)
 #saveRDS(m4a, "RDS_files/Exp4_pH_glm.RDS")
-
+m4a <-readRDS("RDS_files/Exp4_pH_glm.RDS")
 summary(m4a)
 pp_check(m4a)
 posterior_m4a <- as.data.frame(m4a)
-posterior_m4a_melt <- posterior_m4a[,1:6]
+posterior_m4a_melt <- posterior_m4a[,1:3]
 posterior_m4a_melt <- reshape2::melt(posterior_m4a_melt)
+
+ggplot(posterior_m4a_melt, aes(x = value,y=variable, fill = factor(variable))) +
+  stat_halfeye(slab_alpha=0.50, .width=c(.95, 0.95)) +
+  geom_vline(aes(xintercept=0), 
+             color="black", size=1, linetype="dashed")+
+  ylab("Probability density") +
+  theme_classic() + guides(fill="none")+ scale_fill_manual(values=c( "#5d004f","#c24000","#008388"))+
+  theme(text = element_text(color = "black", size = 16 ))+
+  xlab("Predicted Effect on pH")
+
 
 posterior_m4a_melt_intc <- filter(posterior_m4a_melt, variable =="b_Intercept")
 posterior_m4a_melt_other <- filter(posterior_m4a_melt, variable %in% c("b_treatmentant", "b_treatmentbeetle"))
@@ -611,7 +640,8 @@ ggplot() +
   geom_ribbon(data = pm4a, aes(x = day, ymin = conf.low, ymax = conf.high, fill = treatment), alpha = 0.1) + # Shaded area for confidence interval
   scale_color_manual(values = c("#c24000", "#008388","#5d004f")) +
   scale_fill_manual(values = c("#c24000", "#008388","#5d004f"))+theme_classic()+
-  theme(legend.position ="none")+ xlim(c(7,52))
+  theme(legend.position ="none")+ xlim(c(7,52))+theme(text = element_text(color = "black", size = 16 ))+
+  xlab("Day") + ylab("pH")
 
 ##change in biomass
 
@@ -1120,12 +1150,14 @@ ggplot(data=md16s.filt2, aes(x=treatment, y=richness, group=treatment, color=tre
 
 
 #### alpha diveristy GLMM
-md16s.filt$treatment <- as.factor(md16s.filt$treatment)
+md16s.filt$treatment <- factor(md16s.filt$treatment, levels=c("ant", "beetle", "fly"))
 
 ggplot(data=md16s.filt, aes(x=treatment, y=richness, fill=treatment, color=treatment)) +
- geom_boxplot(outlier.shape=NA,alpha=.4) +geom_jitter() + ylab("ASV Richness") + theme_classic()+
+ geom_boxplot(outlier.shape=NA,alpha=.4) +geom_jitter() + ylab("Richness (Total ASVs)") + theme_classic()+
   scale_color_manual(values=c(color_palette))+scale_fill_manual(values=c(color_palette))+
-  facet_wrap(~day, nrow=1)+ theme(legend.position="none")
+  facet_wrap(~day, nrow=1)+ theme(legend.position="none")+
+  theme(text = element_text(color = "black", size = 16 ))+
+  xlab("")
 
 ggplot(data=md16s.filt, aes(x=treatment, y=ef.16s, fill=treatment, color=treatment)) +
   geom_boxplot(outlier.shape=NA,alpha=.4) +geom_jitter() + ylab("Effective Number of ASVs (Hill Number 1)") + theme_classic()+
@@ -1260,23 +1292,23 @@ data_merge2 <- merge(data.scores2, meta_phys, by = c("ID"))
 data_merge2$day <- as.factor(data_merge2$day)
 
 plot(wu.nmds.16s$points[,1:2], xlab="NMDS Axis 1", ylab="NMDS Axis 2", 
-     col= c(color_palette_4)[data_merge2$treatment],
+     col= c(color_palette_3)[data_merge2$treatment],
      pch=19, main="uUniFrac all time points")
-ordiellipse(wu.nmds.16s, groups = as.factor(data_merge2$treatment),col = c(color_palette_nopos))
+ordiellipse(wu.nmds.16s, groups = as.factor(data_merge2$treatment),col = c(color_palette_3))
 legend("topright", 
        legend=c("ant", "beetle","fly"),
-       col= c(color_palette_nopos),
+       col= c(color_palette_3),
        pch=19,
        cex=1,
        bty = "n")
 
 
 plot(wu.nmds.16s$points[,1:2], xlab="NMDS Axis 1", ylab="NMDS Axis 2", 
-     col= c(color_palette_nopos)[data_merge2$treatment],
+     col= c(color_palette_3)[data_merge2$treatment],
      pch=19)
 legend("topright", 
        legend=c("ant", "beetle","fly"),
-       col= c(color_palette_nopos),
+       col= c(color_palette_3),
        pch=19,
        cex=1,
        bty = "n")
@@ -1306,7 +1338,7 @@ ggplot(all.scores.beta, aes(x = NMDS1, y = NMDS2)) +
         panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, size = 1.2),
         legend.key=element_blank()) + 
   labs(x = "NMDS1", colour = "treatment", y = "NMDS2") + aes(fill = factor(treatment)) + geom_polygon(data = hullsall, alpha = 0.2) + guides(fill=FALSE)+
-  scale_color_manual(values=color_palette)+scale_fill_manual(values=color_palette)+theme(legend.position = "none")
+  scale_color_manual(values=color_palette)+scale_fill_manual(values=color_palette)
 
 #get the data scores from the nmds
 all.scores.beta <- as.data.frame(scores(wu.nmds.16s, "sites"))
@@ -1330,8 +1362,7 @@ ggplot(all.scores.beta, aes(x = NMDS1, y = NMDS2)) +
         panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, size = 1.2),
         legend.key=element_blank()) + 
   labs(x = "NMDS1", colour = "day", y = "NMDS2") + aes(fill = factor(day)) + geom_polygon(data = hullsall, alpha = 0.2) + guides(fill=FALSE)+
-  scale_color_manual(values=c("navyblue", "skyblue", "slategray"))+scale_fill_manual(values=c("navyblue", "skyblue", "slategray"))+
-  theme(legend.position = "none")
+  scale_color_manual(values=c("navyblue", "skyblue", "slategray"))+scale_fill_manual(values=c("navyblue", "skyblue", "slategray"))
 
 
 
